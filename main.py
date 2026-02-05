@@ -48,6 +48,10 @@ soup = BeautifulSoup(req.content, 'html.parser')
 # парсинг всех марок авто
 brands = []
 brands_links = []
+a = soup.find_all("a", {"class": "frg44i6"})
+for i in a:
+    brands.append(i.string.strip())
+    brands_links.append(i.get("href"))
 a = soup.find_all("noscript")
 for i in a[0].prettify().split("</a>"):
     try:
@@ -56,17 +60,17 @@ for i in a[0].prettify().split("</a>"):
     except Exception as e:
         pass
 
-# парсинг всех моделей выбранной марки авто
-models = []
-linkrel1 = brands_links[15]
-print(linkrel1)
+print(brands_links[50])
+linkrel1 = brands_links[50]
 req1 = requests.get(linkrel1)
 soup1 = BeautifulSoup(req1.content, 'html.parser')
-a1 = soup1.find("noscript")
-print(a1.prettify())
-# for i in a1[0].prettify().split('">'):
-#     try:
-#         models.append(i.split('href="')[1].strip())
-#     except Exception as e:
-#         pass
-# print(models)
+models = [model.text for model in soup1.find_all("a", {"class": "frg44i6"})]
+models_links = [model.get("href") for model in soup1.find_all("a", {"class": "frg44i6"})]
+if len(models) >= 19: # !!! очень жидко, не сработает, если в марке модели ровно 19 моделей !!! можно поменять на .contains()
+    models += [model.text.split('/">')[0].strip() for model in soup1.find_all("noscript")[0]]
+    models_links += [model.get("href").strip() for model in soup1.find_all("noscript")[0]]
+
+for i in range(len(models)):
+    print(f"{models[i]}|{models_links[i]}")
+
+
